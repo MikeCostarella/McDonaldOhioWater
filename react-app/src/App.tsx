@@ -15,6 +15,7 @@ import AccountDialog from "./components/AccountDialog";
 import MultiSelectFilter from "./components/MultiSelectFilter";
 import Legend from "./components/Legend";
 import BuildStamp from "./components/BuildStamp";
+import HelpDialog from "./components/HelpDialog";
 
 /**
  * Phase 3 in progress. Base map + markers + click dialog + search are live;
@@ -34,6 +35,7 @@ export default function App() {
   const [selectedStreets, setSelectedStreets] = useState<Set<string> | null>(
     null,
   );
+  const [helpOpen, setHelpOpen] = useState(false);
   const mapRef = useRef<LeafletMap | null>(null);
 
   useEffect(() => {
@@ -109,7 +111,18 @@ export default function App() {
           <p>Interactive mapping of municipal water service accounts</p>
         </div>
         <div className="meta">
-          <span>Created by:</span> Mike Costarella
+          <button
+            id="help-btn"
+            type="button"
+            aria-label="Help"
+            title="Help"
+            onClick={() => setHelpOpen(true)}
+          >
+            ?
+          </button>
+          <span className="meta-credit">
+            <span>Created by:</span> Mike Costarella
+          </span>
         </div>
       </div>
 
@@ -191,6 +204,8 @@ export default function App() {
       </div>
 
       <AccountDialog location={selected} onClose={() => setSelected(null)} />
+
+      <HelpDialog open={helpOpen} onClose={() => setHelpOpen(false)} />
 
       <BuildStamp />
     </>

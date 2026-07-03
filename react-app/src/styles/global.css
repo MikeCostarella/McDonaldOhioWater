@@ -261,6 +261,45 @@ body {
 }
 #footer #build-time { color: var(--text-muted); }
 
+/* Header "?" help button + the credit text beside it. */
+#help-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  margin-right: 10px;
+  vertical-align: middle;
+}
+#help-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+.meta-credit {
+  vertical-align: middle;
+}
+
+/* Help dialog content. */
+.help-body {
+  font-size: 0.95em;
+  line-height: 1.5;
+}
+.help-intro {
+  margin: 0 0 12px;
+}
+.help-body p {
+  margin: 0 0 8px;
+}
+.help-heading {
+  margin: 16px 0 4px;
+  font-size: 1em;
+  color: #7cc0f0;
+}
+
 /* --- Geolocation "you are here" marker + locate button --- */
 .user-loc-icon { background: transparent; border: none; }
 .user-loc-dot {
