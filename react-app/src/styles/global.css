@@ -153,6 +153,13 @@ body {
 .btn-gmap:hover { background: var(--btn-gmap-hover); }
 .btn-dir { background: var(--btn-dir); color: #fff; }
 .btn-dir:hover { background: var(--btn-dir-hover); }
+.btn-copy { background: var(--btn-primary); color: #fff; }
+.btn-copy:hover { background: var(--btn-primary-hover); }
+
+/* Coordinates row with a Copy button to the right of the lat/lon values. */
+.coord-block { display: flex; align-items: center; gap: 10px; margin: 3px 0; }
+.coord-block .coord-vals { flex: 1; min-width: 0; }
+.coord-block .btn-copy { margin-left: auto; flex-shrink: 0; }
 
 /* Leaflet tooltip override (ported from prototype) */
 .leaflet-tooltip {

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { MapContainer, TileLayer } from "react-leaflet";
 import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -11,6 +12,9 @@ import type { WaterLocation } from "../types/account";
 // Map defaults ported verbatim from the prototype's L.map(...) init.
 export const MAP_CENTER: [number, number] = [41.15972472901409, -80.72895425690142];
 export const MAP_ZOOM = 14;
+
+/** [[minLat, minLon], [maxLat, maxLon]] — the bounding box of all locations. */
+export type DataBounds = [[number, number], [number, number]];
 
 interface WaterMapProps {
   locations: WaterLocation[];
@@ -34,6 +38,26 @@ export default function WaterMap({
   selectedJurisdictions,
   selectedStreets,
 }: WaterMapProps) {
+  // Bounding box of every service location, handed to the geolocation control
+  // so it can frame the whole McDonald service area when the user is outside it.
+  const dataBounds = useMemo<DataBounds | null>(() => {
+    if (!locations.length) return null;
+    let minLat = Infinity,
+      minLon = Infinity,
+      maxLat = -Infinity,
+      maxLon = -Infinity;
+    for (const l of locations) {
+      if (l.lat < minLat) minLat = l.lat;
+      if (l.lat > maxLat) maxLat = l.lat;
+      if (l.lon < minLon) minLon = l.lon;
+      if (l.lon > maxLon) maxLon = l.lon;
+    }
+    return [
+      [minLat, minLon],
+      [maxLat, maxLon],
+    ];
+  }, [locations]);
+
   return (
     <MapContainer
       center={MAP_CENTER}
@@ -53,7 +77,7 @@ export default function WaterMap({
         selectedJurisdictions={selectedJurisdictions}
         selectedStreets={selectedStreets}
       />
-      <GeolocationControl />
+      <GeolocationControl dataBounds={dataBounds} />
       <InvalidateSize />
       {onMapReady && <MapController onReady={onMapReady} />}
     </MapContainer>

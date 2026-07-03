@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import type { WaterLocation } from "../types/account";
 import { HOME_JURISDICTION } from "../types/account";
+import CopyCoordsButton from "./CopyCoordsButton";
 
 interface AccountDialogProps {
   /** The selected location, or null when the dialog is closed. */
@@ -76,13 +77,18 @@ export default function AccountDialog({ location, onClose }: AccountDialogProps)
                   <span className="label">City/State:</span>
                   {a.city}, {a.state} {a.zip}
                 </div>
-                <div className="acct-row">
-                  <span className="label">Latitude:</span>
-                  {a.lat.toFixed(6)}
-                </div>
-                <div className="acct-row">
-                  <span className="label">Longitude:</span>
-                  {a.lon.toFixed(6)}
+                <div className="coord-block">
+                  <div className="coord-vals">
+                    <div className="acct-row">
+                      <span className="label">Latitude:</span>
+                      {a.lat.toFixed(6)}
+                    </div>
+                    <div className="acct-row">
+                      <span className="label">Longitude:</span>
+                      {a.lon.toFixed(6)}
+                    </div>
+                  </div>
+                  <CopyCoordsButton lat={a.lat} lon={a.lon} label="Copy" />
                 </div>
                 <div className="btn-row">
                   <a
