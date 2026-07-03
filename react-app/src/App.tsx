@@ -10,9 +10,13 @@ import {
   streetCounts,
 } from "./data/loadLocations";
 import { findLocation } from "./data/search";
+import { filterLocations } from "./data/filterLocations";
 import WaterMap, { MAP_CENTER, MAP_ZOOM } from "./components/WaterMap";
 import AccountDialog from "./components/AccountDialog";
+import AccountTable from "./components/AccountTable";
 import MultiSelectFilter from "./components/MultiSelectFilter";
+import MainMenu from "./components/MainMenu";
+import type { AppView } from "./components/MainMenu";
 import Legend from "./components/Legend";
 import BuildStamp from "./components/BuildStamp";
 import HelpDialog from "./components/HelpDialog";
@@ -36,6 +40,7 @@ export default function App() {
     null,
   );
   const [helpOpen, setHelpOpen] = useState(false);
+  const [view, setView] = useState<AppView>("map");
   const mapRef = useRef<LeafletMap | null>(null);
 
   useEffect(() => {
@@ -103,12 +108,36 @@ export default function App() {
     }
   }, [streetOptions, selectedStreets]);
 
+  // The active filter selections, shared by the map and the list so both show
+  // exactly the same set.
+  const activeJur = hasJurisdictions ? selectedJur ?? undefined : undefined;
+  const activeStreets = hasStreets ? selectedStreets ?? undefined : undefined;
+
+  // The filtered locations the list view renders (single source of truth shared
+  // with the map via filterLocations).
+  const filtered = useMemo(
+    () => filterLocations(locations ?? [], activeJur, activeStreets),
+    [locations, activeJur, activeStreets],
+  );
+
+  // The map lives inside a hidden container while the list is showing. Leaflet
+  // measures 0×0 in a display:none parent, so re-measure when we return to it.
+  useEffect(() => {
+    if (view === "map" && mapRef.current) {
+      const id = window.setTimeout(() => mapRef.current?.invalidateSize(), 0);
+      return () => window.clearTimeout(id);
+    }
+  }, [view]);
+
   return (
     <>
       <div id="header">
-        <div className="title-block">
-          <h1>&#128204; McDonald Ohio Water Accounts Map</h1>
-          <p>Interactive mapping of municipal water service accounts</p>
+        <div className="header-left">
+          <MainMenu view={view} onViewChange={setView} />
+          <div className="title-block">
+            <h1>&#128204; McDonald Ohio Water Accounts Map</h1>
+            <p>Interactive mapping of municipal water service accounts</p>
+          </div>
         </div>
         <div className="meta">
           <button
@@ -191,17 +220,25 @@ export default function App() {
         )}
       </div>
 
-      <div id="map-wrap">
+      <div id="map-wrap" className={view === "list" ? "hidden" : undefined}>
         <WaterMap
           locations={locations ?? []}
           onSelect={setSelected}
           onMapReady={onMapReady}
           boundaryVisible={boundaryVisible}
-          selectedJurisdictions={hasJurisdictions ? selectedJur ?? undefined : undefined}
-          selectedStreets={hasStreets ? selectedStreets ?? undefined : undefined}
+          selectedJurisdictions={activeJur}
+          selectedStreets={activeStreets}
         />
         <Legend boundaryVisible={boundaryVisible} onToggleBoundary={toggleBoundary} />
       </div>
+
+      {view === "list" && (
+        <AccountTable
+          locations={filtered}
+          query={query}
+          onSelect={setSelected}
+        />
+      )}
 
       <AccountDialog location={selected} onClose={() => setSelected(null)} />
 
