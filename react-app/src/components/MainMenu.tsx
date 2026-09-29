@@ -1,10 +1,15 @@
 import { useEffect, useRef, useState } from "react";
+import { BASE_MAP_IDS, BASE_MAP_LABELS } from "../vendor/basemaps/basemaps";
+import type { BaseMapId } from "../vendor/basemaps/basemaps";
 
 export type AppView = "map" | "list";
 
 interface MainMenuProps {
   view: AppView;
   onViewChange: (view: AppView) => void;
+  /** Base map choice and its setter (useBaseMap in App). */
+  baseMap: BaseMapId;
+  onSetBaseMap: (id: BaseMapId) => void;
 }
 
 /**
@@ -13,7 +18,7 @@ interface MainMenuProps {
  *
  * Opens on click; closes on item select, a click outside, or Escape.
  */
-export default function MainMenu({ view, onViewChange }: MainMenuProps) {
+export default function MainMenu({ view, onViewChange, baseMap, onSetBaseMap }: MainMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -78,6 +83,23 @@ export default function MainMenu({ view, onViewChange }: MainMenuProps) {
           >
             Water Locations List
           </button>
+
+          <div className="menu-section-label">Base map</div>
+          {BASE_MAP_IDS.map((id) => (
+            <button
+              key={id}
+              type="button"
+              role="menuitemradio"
+              aria-checked={baseMap === id}
+              className={`menu-item${baseMap === id ? " active" : ""}`}
+              onClick={() => {
+                onSetBaseMap(id);
+                setOpen(false);
+              }}
+            >
+              {BASE_MAP_LABELS[id]}
+            </button>
+          ))}
 
           <div className="menu-section-label">Links</div>
           <a

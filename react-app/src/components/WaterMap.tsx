@@ -1,5 +1,7 @@
 import { useMemo } from "react";
-import { MapContainer, TileLayer } from "react-leaflet";
+import { MapContainer } from "react-leaflet";
+import BaseMapLayers from "../vendor/basemaps/BaseMapLayers";
+import type { BaseMapId, TileSpec } from "../vendor/basemaps/basemaps";
 import type { Map as LeafletMap } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { InvalidateSize } from "../hooks/useInvalidateSize";
@@ -9,6 +11,15 @@ import GeolocationControl from "./GeolocationControl";
 import BoundaryLayers from "./BoundaryLayers";
 import type { WaterLocation } from "../types/account";
 
+// Streets stays the OpenStreetMap tiles the app has always used; the aerial
+// choices come from vendor/basemaps.
+const OSM_STREETS: TileSpec = {
+  url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+  attribution:
+    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxNativeZoom: 19,
+};
+
 // Map defaults ported verbatim from the prototype's L.map(...) init.
 export const MAP_CENTER: [number, number] = [41.15972472901409, -80.72895425690142];
 export const MAP_ZOOM = 14;
@@ -17,6 +28,8 @@ export const MAP_ZOOM = 14;
 export type DataBounds = [[number, number], [number, number]];
 
 interface WaterMapProps {
+  /** Base map choice (streets / aerial / hybrid) from useBaseMap(). */
+  baseMap?: BaseMapId;
   locations: WaterLocation[];
   onSelect?: (loc: WaterLocation) => void;
   onMapReady?: (map: LeafletMap) => void;
@@ -31,6 +44,7 @@ interface WaterMapProps {
  * the prototype.
  */
 export default function WaterMap({
+  baseMap = "streets",
   locations,
   onSelect,
   onMapReady,
@@ -65,11 +79,9 @@ export default function WaterMap({
       zoomControl={true}
       style={{ width: "100%", height: "100%" }}
     >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        maxZoom={19}
-      />
+      {/* OSM streets, or OSIP aerial (+ CARTO labels for hybrid); see
+          vendor/basemaps. Moves maxZoom with the choice (aerial to 21). */}
+      <BaseMapLayers baseMap={baseMap} streets={OSM_STREETS} streetsLabels={null} />
       <BoundaryLayers visible={boundaryVisible} />
       <AccountMarkers
         locations={locations}

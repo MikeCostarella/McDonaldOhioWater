@@ -47,6 +47,27 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
         runtimeCaching: [
           {
+            // Ohio OSIP aerial tiles (vendor/basemaps), cached so the aerial
+            // keeps working offline once an area has been viewed.
+            urlPattern: ({ url }) => /^https:\/\/maps\.ohio\.gov\/.*\/osip_most_current_cache\//.test(String(url)),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "osip-tiles",
+              expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 14 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            // CARTO label tiles drawn over the aerial (hybrid).
+            urlPattern: ({ url }) => /basemaps\.cartocdn\.com/.test(String(url)),
+            handler: "CacheFirst",
+            options: {
+              cacheName: "carto-tiles",
+              expiration: { maxEntries: 600, maxAgeSeconds: 60 * 60 * 24 * 14 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
             urlPattern: ({ url }) => url.host.includes("tile.openstreetmap.org"),
             handler: "CacheFirst",
             options: {

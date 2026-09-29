@@ -16,6 +16,7 @@ import AccountDialog from "./components/AccountDialog";
 import AccountTable from "./components/AccountTable";
 import MultiSelectFilter from "./components/MultiSelectFilter";
 import MainMenu from "./components/MainMenu";
+import { useBaseMap } from "./vendor/basemaps/useBaseMap";
 import type { AppView } from "./components/MainMenu";
 import Legend from "./components/Legend";
 import BuildStamp from "./components/BuildStamp";
@@ -41,6 +42,7 @@ export default function App() {
   );
   const [helpOpen, setHelpOpen] = useState(false);
   const [view, setView] = useState<AppView>("map");
+  const [baseMap, setBaseMap] = useBaseMap();
   const mapRef = useRef<LeafletMap | null>(null);
 
   useEffect(() => {
@@ -133,7 +135,7 @@ export default function App() {
     <>
       <div id="header">
         <div className="header-left">
-          <MainMenu view={view} onViewChange={setView} />
+          <MainMenu view={view} onViewChange={setView} baseMap={baseMap} onSetBaseMap={setBaseMap} />
           <div className="title-block">
             <h1>&#128204; McDonald Ohio Water Accounts Map</h1>
             <p>Interactive mapping of municipal water service accounts</p>
@@ -222,6 +224,7 @@ export default function App() {
 
       <div id="map-wrap" className={view === "list" ? "hidden" : undefined}>
         <WaterMap
+          baseMap={baseMap}
           locations={locations ?? []}
           onSelect={setSelected}
           onMapReady={onMapReady}
